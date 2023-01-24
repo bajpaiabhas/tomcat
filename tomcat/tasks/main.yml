@@ -1,0 +1,34 @@
+---
+- name: Updating repos
+  yum:
+    name: "*"
+    state: latest
+- name: Installing required java
+  yum:
+    name: "{{req_java}}"
+    state: present
+- name: Setting default java
+  alternatives:
+    name: java
+    link: /usr/bin/java
+    path: /usr/lib/jvm/{{set_java}}/bin/java
+- name: Downloading required tomcat
+  get_url:
+    url: "{{tomcat_url}}"
+    dest: /usr/local
+- name: Extracting downloded tomcat
+  unarchive:
+    src: "/usr/local/apache-tomcat-{{tomcat_ver}}.tar.gz"
+    dest: /usr/local
+    remote_src: yes
+- name:  create symbolic link
+  file:
+    src: "/usr/local/apache-tomcat-{{tomcat_ver}}"
+    dest: /usr/local/tomcat
+    state: link
+- name: Port setup
+  template:
+    src: server.xml.j2
+    dest: /usr/local/tomcat/conf/server.xml
+- name: Starting tomcat
+  shell: nohup /usr/local/tomcat/bin/startup.sh &

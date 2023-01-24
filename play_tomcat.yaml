@@ -1,0 +1,6 @@
+---
+-
+  hosts: minikube
+  roles:
+    - tomcat
+          
